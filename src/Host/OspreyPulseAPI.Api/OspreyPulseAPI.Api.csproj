@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Identity\OspreyPulseAPI.Modules.Identity.Infrastructure\OspreyPulseAPI.Modules.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Competitions\OspreyPulseAPI.Modules.Competitions.Infrastructure\OspreyPulseAPI.Modules.Competitions.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\OspreyPulseAPI.Shared.Infra\OspreyPulseAPI.Shared.Infra.csproj" />
+    <ProjectReference Include="..\..\Modules\Identity\OspreyPulseAPI.Modules.Identity.Presentation\OspreyPulseAPI.Modules.Identity.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\Competitions\OspreyPulseAPI.Modules.Competitions.Presentation\OspreyPulseAPI.Modules.Competitions.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\Sports.NBA\OspreyPulseAPI.Modules.Sports.NBA.Presentation\OspreyPulseAPI.Modules.Sports.NBA.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\Social\OspreyPulseAPI.Modules.Social.Presentation\OspreyPulseAPI.Modules.Social.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\Economy\OspreyPulseAPI.Modules.Economy.Presentation\OspreyPulseAPI.Modules.Economy.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\AI\OspreyPulseAPI.Modules.AI.Presentation\OspreyPulseAPI.Modules.AI.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\OspreyPulseAPI.Modules.Economy.Application\OspreyPulseAPI.Modules.Economy.Application.csproj" />
+    <ProjectReference Include="..\OspreyPulseAPI.Modules.Economy.Domain\OspreyPulseAPI.Modules.Economy.Domain.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
