@@ -1,13 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\OspreyPulseAPI.Modules.Identity.Application\OspreyPulseAPI.Modules.Identity.Application.csproj" />
-  </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Execution" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Types" Version="13.9.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OspreyPulseAPI.Modules.Identity.Application\OspreyPulseAPI.Modules.Identity.Application.csproj" />
+  </ItemGroup>
 
 </Project>

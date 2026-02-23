@@ -1,6 +1,24 @@
 Studio URL: http://localhost:54323 (This is where you see your data).
 DB URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres (This is what you put in your .net connection string).
 
+### Apply EF Core migrations (Identity + Competitions)
+
+From the repo root, with Supabase (or PostgreSQL) running and connection string in appsettings:
+
+```bash
+# Identity (identity.Users, etc.)
+dotnet ef database update \
+  --project src/Modules/Identity/OspreyPulseAPI.Modules.Identity.Infrastructure/OspreyPulseAPI.Modules.Identity.Infrastructure.csproj \
+  --startup-project src/Host/OspreyPulseAPI.Api/OspreyPulseAPI.Api.csproj \
+  --context IdentityDbContext
+
+# Competitions (competitions schema)
+dotnet ef database update \
+  --project src/Modules/Competitions/OspreyPulseAPI.Modules.Competitions.Infrastructure/OspreyPulseAPI.Modules.Competitions.Infrastructure.csproj \
+  --startup-project src/Host/OspreyPulseAPI.Api/OspreyPulseAPI.Api.csproj \
+  --context CompetitionsDbContext
+```
+
 supabase start
 [+] Pulling 145/146
  ✔ postgres-meta 

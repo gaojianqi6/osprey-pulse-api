@@ -25,3 +25,30 @@ Osprey Pulse is a premium sports community and data platform. It bridges the gap
 - **Database:** **PostgreSQL** (Relational) + **Redis** (Live session cache).
 - **Performance:** **.NET 10 HybridCache**. This new standard automatically manages L1 (In-memory) and L2 (Redis) caching, ensuring score updates reach users in sub-10ms.
 - **Architecture:** Modular Monolith with **Interface-based League Providers** (add new sports by just adding a new C# module).
+
+---
+Flow: GraphQL → IdentityMutations.RegisterUserAsync → MediatR → RegisterUserHandler → IIdentityDbContext → PostgreSQL.
+
+### Test
+1. dotnet test tests/OspreyPulseAPI.Tests.Unit/OspreyPulseAPI.Tests.Unit.csproj
+
+### Prepare Step (Run Migrations)
+Now, we run the "Code-First" commands to actually create the tables in your Supabase. Run these in your terminal:
+
+**1. Create Identity Tables:**
+```bash
+dotnet ef migrations add InitialIdentity --context IdentityDbContext --project src/Modules/Identity/OspreyPulseAPI.Modules.Identity.Infrastructure --startup-project src/Host/OspreyPulseAPI.Api
+```
+
+**2. Create Competitions Tables:**
+```bash
+dotnet ef migrations add InitialCompetitions --context CompetitionsDbContext --project src/Modules/Competitions/OspreyPulseAPI.Modules.Competitions.Infrastructure --startup-project src/Host/OspreyPulseAPI.Api
+```
+
+**3. Push to Database:**
+```bash
+dotnet ef database update --context IdentityDbContext --startup-project src/Host/OspreyPulseAPI.Api
+dotnet ef database update --context CompetitionsDbContext --startup-project src/Host/OspreyPulseAPI.Api
+```
+
+**Once you do this, refresh your Supabase Studio (localhost:54323). You should see your new schemas and tables!** Let me know if you run into any errors during the `ef migrations` step.
