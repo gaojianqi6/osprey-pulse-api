@@ -3,10 +3,6 @@ using MediatR;
 namespace OspreyPulseAPI.Modules.Identity.Application.Users.RegisterUser;
 
 /// <summary>
-/// Command to register a new user (e.g. after Supabase Auth signup).
+/// Command to register a new user via Supabase Auth and create the profile in identity.Users.
 /// </summary>
-public record RegisterUserCommand(
-    Guid Id,
-    string Username,
-    string Email
-) : IRequest<Guid>;
+public record RegisterUserCommand(string Username, string Email, string Password) : IRequest<Guid>;

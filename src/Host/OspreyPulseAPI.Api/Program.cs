@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OspreyPulseAPI.Modules.Identity.Application;
 using OspreyPulseAPI.Modules.Identity.Application.Abstractions;
+using OspreyPulseAPI.Modules.Identity.Infrastructure;
 using OspreyPulseAPI.Modules.Identity.Infrastructure.Persistence;
 using OspreyPulseAPI.Api.GraphQL;
 using OspreyPulseAPI.Modules.Competitions.Infrastructure.Persistence;
@@ -19,6 +20,9 @@ builder.Services.AddDbContext<CompetitionsDbContext>(options =>
 
 // 2. Identity abstraction: Application uses IIdentityDbContext, Infrastructure provides IdentityDbContext
 builder.Services.AddScoped<IIdentityDbContext>(sp => sp.GetRequiredService<IdentityDbContext>());
+
+// 2b. Supabase Auth (backend signup/login)
+builder.Services.AddSupabaseAuth(builder.Configuration);
 
 // 3. JWT & Security (Supabase Auth)
 var supabaseSection = builder.Configuration.GetSection("Supabase");

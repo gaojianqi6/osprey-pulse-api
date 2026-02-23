@@ -6,24 +6,32 @@ namespace OspreyPulseAPI.Modules.Identity.Application.Users.RegisterUser;
 
 public class RegisterUserHandler : IRequestHandler<RegisterUserCommand, Guid>
 {
+    private readonly ISupabaseAuthService _supabase;
     private readonly IIdentityDbContext _context;
 
-    public RegisterUserHandler(IIdentityDbContext context) => _context = context;
+    public RegisterUserHandler(ISupabaseAuthService supabase, IIdentityDbContext context)
+    {
+        _supabase = supabase;
+        _context = context;
+    }
 
     public async Task<Guid> Handle(RegisterUserCommand request, CancellationToken ct)
     {
-        var user = new User
+        var options = new Dictionary<string, string> { { "username", request.Username } };
+        var userId = await _supabase.SignUpAsync(request.Email, request.Password, options, ct);
+
+        var newUser = new User
         {
-            Id = request.Id,
+            Id = userId,
             Username = request.Username,
             Email = request.Email,
             OspreyPoints = 1000,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
-        _context.Users.Add(user);
+        _context.Users.Add(newUser);
         await _context.SaveChangesAsync(ct);
 
-        return user.Id;
+        return newUser.Id;
     }
 }
