@@ -1,12 +1,14 @@
 namespace OspreyPulseAPI.Modules.Competitions.Domain;
 
 /// <summary>
-/// Competition/game status. Maps to competitions.status (SMALLINT).
+/// Competition/game status. Maps to API-Sports and competitions.status (SMALLINT).
 /// </summary>
 public enum CompetitionStatus : short
 {
-    Scheduled = 0,
-    Live = 1,
-    Finished = 2,
-    Delayed = 3
+    NotStarted = 1,
+    Live = 2,
+    Finished = 3,
+    Postponed = 4,
+    Delayed = 5,
+    Canceled = 6
 }

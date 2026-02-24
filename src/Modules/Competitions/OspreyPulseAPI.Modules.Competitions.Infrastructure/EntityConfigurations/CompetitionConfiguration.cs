@@ -10,7 +10,9 @@ internal class CompetitionConfiguration : IEntityTypeConfiguration<Competition>
     {
         builder.ToTable("competitions");
 
-        // Two FKs to Team: EF Core needs explicit configuration to match navigations to FKs
+        builder.HasIndex(e => e.ExternalId).IsUnique().HasFilter("\"ExternalId\" IS NOT NULL");
+        builder.HasIndex(e => new { e.SeasonId, e.HomeTeamId, e.AwayTeamId, e.StartTime }).IsUnique();
+
         builder.HasOne(c => c.HomeTeam)
             .WithMany(t => t.HomeCompetitions)
             .HasForeignKey(c => c.HomeTeamId)
@@ -21,7 +23,6 @@ internal class CompetitionConfiguration : IEntityTypeConfiguration<Competition>
             .HasForeignKey(c => c.AwayTeamId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // PostgreSQL JSONB: ensures searchable/indexable object, not plain text
         builder.Property(e => e.Metadata)
             .HasColumnName("metadata")
             .HasColumnType("jsonb");

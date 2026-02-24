@@ -10,7 +10,8 @@ internal class CompetitionRosterConfiguration : IEntityTypeConfiguration<Competi
     {
         builder.ToTable("competition_rosters");
 
-        // PostgreSQL JSONB: sport-specific stats (points, kills, etc.)
+        builder.Property(e => e.PositionPlayed).HasColumnName("position_played");
+        builder.Property(e => e.MinutesPlayed).HasColumnName("minutes_played");
         builder.Property(e => e.Stats)
             .HasColumnName("stats")
             .HasColumnType("jsonb");

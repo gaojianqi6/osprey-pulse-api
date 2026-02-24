@@ -14,4 +14,5 @@ public class PlayerTeamAssignment
 
     public bool IsActive { get; set; } = true;
     public DateOnly? JoinedDate { get; set; }
+    public short? JerseyNumber { get; set; }
 }

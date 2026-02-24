@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OspreyPulseAPI.Modules.Competitions.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using OspreyPulseAPI.Modules.Competitions.Infrastructure.Persistence;
 namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
 {
     [DbContext(typeof(CompetitionsDbContext))]
-    partial class CompetitionsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260224044531_SchemaV18_ExternalIdsAndApiAlignment")]
+    partial class SchemaV18_ExternalIdsAndApiAlignment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

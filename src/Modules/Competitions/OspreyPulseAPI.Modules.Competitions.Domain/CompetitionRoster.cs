@@ -19,7 +19,8 @@ public class CompetitionRoster
 
     public RosterRoleType? RoleType { get; set; }
     public LineupStatus? LineupStatus { get; set; }
-    public TeamSide? TeamSide { get; set; }
+    public string? PositionPlayed { get; set; }
+    public string? MinutesPlayed { get; set; }
 
     /// <summary>Sport-specific stats (e.g. points, kills). Stored as JSONB.</summary>
     public string? Stats { get; set; }
