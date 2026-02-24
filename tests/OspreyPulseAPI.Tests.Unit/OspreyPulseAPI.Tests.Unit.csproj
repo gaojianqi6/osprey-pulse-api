@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Identity\OspreyPulseAPI.Modules.Identity.Application\OspreyPulseAPI.Modules.Identity.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\OspreyPulseAPI.Modules.Identity.Domain\OspreyPulseAPI.Modules.Identity.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Identity\OspreyPulseAPI.Modules.Identity.Infrastructure\OspreyPulseAPI.Modules.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Shared\OspreyPulseAPI.Shared.Kernel\OspreyPulseAPI.Shared.Kernel.csproj" />
   </ItemGroup>

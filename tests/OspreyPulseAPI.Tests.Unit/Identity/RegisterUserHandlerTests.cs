@@ -37,4 +37,33 @@ public class RegisterUserHandlerTests
         Assert.Equal(email, user.Email);
         Assert.Equal(1000, user.OspreyPoints);
     }
+
+    [Fact]
+    public async Task Handle_PassesUsernameInMetadataToSupabase()
+    {
+        var userId = Guid.NewGuid();
+        var username = "kiwi_warrior";
+        var email = "kiwi@example.com";
+        var password = "Pass123!";
+
+        var supabase = Substitute.For<ISupabaseAuthService>();
+        supabase.SignUpAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IReadOnlyDictionary<string, string>?>(), Arg.Any<CancellationToken>())
+            .Returns(userId);
+
+        var options = new DbContextOptionsBuilder<IdentityDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new IdentityDbContext(options);
+        var handler = new RegisterUserHandler(supabase, context);
+        var command = new RegisterUserCommand(username, email, password);
+
+        await handler.Handle(command, CancellationToken.None);
+
+        await supabase.Received(1).SignUpAsync(
+            email,
+            password,
+            Arg.Is<IReadOnlyDictionary<string, string>?>(d => d != null && d.Count == 1 && d["username"] == username),
+            Arg.Any<CancellationToken>());
+    }
 }
