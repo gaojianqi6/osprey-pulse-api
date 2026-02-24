@@ -12,8 +12,8 @@ using OspreyPulseAPI.Modules.Competitions.Infrastructure.Persistence;
 namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
 {
     [DbContext(typeof(CompetitionsDbContext))]
-    [Migration("20260224044531_SchemaV18_ExternalIdsAndApiAlignment")]
-    partial class SchemaV18_ExternalIdsAndApiAlignment
+    [Migration("20260224075012_Initial_v1_8")]
+    partial class Initial_v1_8
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -275,20 +275,25 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
                     b.Property<bool>("IsCurrent")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("LeagueId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("YearLabel")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("year_label");
+                    b.Property<DateOnly?>("StartDate")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeagueId", "YearLabel")
+                    b.HasIndex("LeagueId", "Label")
                         .IsUnique();
 
                     b.ToTable("Seasons", "competitions");

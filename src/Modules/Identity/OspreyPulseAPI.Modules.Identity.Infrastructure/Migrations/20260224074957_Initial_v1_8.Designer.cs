@@ -12,8 +12,8 @@ using OspreyPulseAPI.Modules.Identity.Infrastructure.Persistence;
 namespace OspreyPulseAPI.Modules.Identity.Infrastructure.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20260222223758_InitialIdentity")]
-    partial class InitialIdentity
+    [Migration("20260224074957_Initial_v1_8")]
+    partial class Initial_v1_8
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

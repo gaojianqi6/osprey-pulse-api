@@ -7,6 +7,7 @@ using OspreyPulseAPI.Modules.Identity.Application.Abstractions;
 using OspreyPulseAPI.Modules.Identity.Infrastructure;
 using OspreyPulseAPI.Modules.Identity.Infrastructure.Persistence;
 using OspreyPulseAPI.Api.GraphQL;
+using OspreyPulseAPI.Api.Services;
 using OspreyPulseAPI.Modules.Competitions.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,6 +66,9 @@ builder.Services
     .AddQueryType<Query>()
     .AddMutationType(d => d.Name("Mutation"))
     .AddIdentityModule();
+
+// 6. Static NBA seed (Channel, League, Seasons)
+builder.Services.AddHostedService<NbaDataSeeder>();
 
 // Add services to the container.
 builder.Services.AddOpenApi();

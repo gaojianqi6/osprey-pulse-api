@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCompetitions : Migration
+    public partial class Initial_v1_8 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,8 +23,9 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true),
-                    Slug = table.Column<string>(type: "text", nullable: false)
+                    Slug = table.Column<string>(type: "text", nullable: false),
+                    SportType = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -38,8 +39,12 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExternalId = table.Column<string>(type: "text", nullable: true),
                     FullName = table.Column<string>(type: "text", nullable: false),
                     Nationality = table.Column<string>(type: "text", nullable: true),
+                    BirthDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    HeightCm = table.Column<short>(type: "smallint", nullable: true),
+                    WeightKg = table.Column<short>(type: "smallint", nullable: true),
                     AvatarUrl = table.Column<string>(type: "text", nullable: true),
                     DefaultPosition = table.Column<string>(type: "text", nullable: true)
                 },
@@ -56,7 +61,9 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ChannelId = table.Column<int>(type: "integer", nullable: false),
+                    ExternalId = table.Column<string>(type: "text", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
+                    ShortCode = table.Column<string>(type: "text", nullable: true),
                     LogoUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -80,6 +87,8 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     LeagueId = table.Column<int>(type: "integer", nullable: false),
                     Label = table.Column<string>(type: "text", nullable: false),
+                    StartDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    EndDate = table.Column<DateOnly>(type: "date", nullable: true),
                     IsCurrent = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -102,9 +111,14 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     LeagueId = table.Column<int>(type: "integer", nullable: false),
+                    ExternalId = table.Column<string>(type: "text", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    LogoUrl = table.Column<string>(type: "text", nullable: true),
-                    Description = table.Column<string>(type: "text", nullable: true)
+                    Nickname = table.Column<string>(type: "text", nullable: true),
+                    Code = table.Column<string>(type: "text", nullable: true),
+                    City = table.Column<string>(type: "text", nullable: true),
+                    Conference = table.Column<string>(type: "text", nullable: true),
+                    Division = table.Column<string>(type: "text", nullable: true),
+                    LogoUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -126,12 +140,17 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     SeasonId = table.Column<int>(type: "integer", nullable: false),
+                    ExternalId = table.Column<string>(type: "text", nullable: true),
                     HomeTeamId = table.Column<int>(type: "integer", nullable: false),
                     AwayTeamId = table.Column<int>(type: "integer", nullable: false),
                     StartTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    Venue = table.Column<string>(type: "text", nullable: true),
+                    City = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<short>(type: "smallint", nullable: false),
                     HomeScore = table.Column<int>(type: "integer", nullable: false),
                     AwayScore = table.Column<int>(type: "integer", nullable: false),
+                    CurrentPeriod = table.Column<short>(type: "smallint", nullable: true),
+                    TimeRemaining = table.Column<string>(type: "text", nullable: true),
                     metadata = table.Column<string>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
@@ -168,7 +187,8 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                     PlayerId = table.Column<int>(type: "integer", nullable: false),
                     TeamId = table.Column<int>(type: "integer", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    JoinedDate = table.Column<DateOnly>(type: "date", nullable: true)
+                    JoinedDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    JerseyNumber = table.Column<short>(type: "smallint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -201,7 +221,8 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                     TeamId = table.Column<int>(type: "integer", nullable: false),
                     RoleType = table.Column<short>(type: "smallint", nullable: true),
                     LineupStatus = table.Column<short>(type: "smallint", nullable: true),
-                    TeamSide = table.Column<short>(type: "smallint", nullable: true),
+                    position_played = table.Column<string>(type: "text", nullable: true),
+                    minutes_played = table.Column<string>(type: "text", nullable: true),
                     stats = table.Column<string>(type: "jsonb", nullable: true),
                     RatingAvg = table.Column<decimal>(type: "numeric", nullable: false)
                 },
@@ -255,16 +276,25 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                 column: "AwayTeamId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_competitions_ExternalId",
+                schema: "competitions",
+                table: "competitions",
+                column: "ExternalId",
+                unique: true,
+                filter: "\"ExternalId\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_competitions_HomeTeamId",
                 schema: "competitions",
                 table: "competitions",
                 column: "HomeTeamId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_competitions_SeasonId",
+                name: "IX_competitions_SeasonId_HomeTeamId_AwayTeamId_StartTime",
                 schema: "competitions",
                 table: "competitions",
-                column: "SeasonId");
+                columns: new[] { "SeasonId", "HomeTeamId", "AwayTeamId", "StartTime" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Leagues_ChannelId",
@@ -273,16 +303,41 @@ namespace OspreyPulseAPI.Modules.Competitions.Infrastructure.Migrations
                 column: "ChannelId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Leagues_ExternalId",
+                schema: "competitions",
+                table: "Leagues",
+                column: "ExternalId",
+                unique: true,
+                filter: "\"ExternalId\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_player_team_assignments_TeamId",
                 schema: "competitions",
                 table: "player_team_assignments",
                 column: "TeamId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Seasons_LeagueId",
+                name: "IX_Players_ExternalId",
+                schema: "competitions",
+                table: "Players",
+                column: "ExternalId",
+                unique: true,
+                filter: "\"ExternalId\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seasons_LeagueId_Label",
                 schema: "competitions",
                 table: "Seasons",
-                column: "LeagueId");
+                columns: new[] { "LeagueId", "Label" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Teams_ExternalId",
+                schema: "competitions",
+                table: "Teams",
+                column: "ExternalId",
+                unique: true,
+                filter: "\"ExternalId\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Teams_LeagueId",
