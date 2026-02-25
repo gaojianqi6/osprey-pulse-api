@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OspreyPulseAPI.Modules.Competitions.Application;
 using OspreyPulseAPI.Modules.Competitions.Domain;
 using OspreyPulseAPI.Modules.Competitions.Infrastructure.Persistence;
 
@@ -24,6 +25,7 @@ public class NbaDataSeeder : IHostedService
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<CompetitionsDbContext>();
+            var espnIngestion = scope.ServiceProvider.GetRequiredService<IEspnNbaIngestionService>();
 
             // Ensure NBA channel exists
             var channel = await db.Channels.SingleOrDefaultAsync(c => c.Slug == "nba", cancellationToken);
@@ -92,6 +94,22 @@ public class NbaDataSeeder : IHostedService
 
             _logger.LogInformation("NBA static data ensured: channel 'nba', league 'NBA', {SeasonCount} seasons.",
                 seasons.Length);
+
+            // 2. Load/refresh NBA teams from ESPN only when we don't have any yet
+            var hasTeams = await db.Teams.AnyAsync(t => t.LeagueId == league.Id, cancellationToken);
+            if (!hasTeams)
+            {
+                _logger.LogInformation("Syncing NBA teams from ESPN...");
+                await espnIngestion.EnsureTeamsAsync(cancellationToken);
+            }
+            else
+            {
+                _logger.LogDebug("NBA teams already present; skipping ESPN team sync.");
+            }
+
+            // 3. Load 3-day competitions (yesterday, today, tomorrow) — always run to refresh scores/status
+            _logger.LogInformation("Syncing NBA competitions (3-day scoreboard) from ESPN...");
+            await espnIngestion.EnsureUpcomingThreeDayScoreboardAsync(cancellationToken);
         }
         catch (Exception ex)
         {

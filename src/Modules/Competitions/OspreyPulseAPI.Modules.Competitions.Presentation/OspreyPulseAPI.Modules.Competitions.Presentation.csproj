@@ -1,13 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\OspreyPulseAPI.Modules.Competitions.Application\OspreyPulseAPI.Modules.Competitions.Application.csproj" />
-  </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Execution" Version="13.9.0" />
+    <PackageReference Include="HotChocolate.Types" Version="13.9.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OspreyPulseAPI.Modules.Competitions.Application\OspreyPulseAPI.Modules.Competitions.Application.csproj" />
+    <ProjectReference Include="..\OspreyPulseAPI.Modules.Competitions.Infrastructure\OspreyPulseAPI.Modules.Competitions.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>

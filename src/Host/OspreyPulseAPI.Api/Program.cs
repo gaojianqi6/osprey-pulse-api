@@ -8,6 +8,7 @@ using OspreyPulseAPI.Modules.Identity.Infrastructure;
 using OspreyPulseAPI.Modules.Identity.Infrastructure.Persistence;
 using OspreyPulseAPI.Api.GraphQL;
 using OspreyPulseAPI.Api.Services;
+using OspreyPulseAPI.Modules.Competitions.Application;
 using OspreyPulseAPI.Modules.Competitions.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,18 @@ builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddDbContext<CompetitionsDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+// 1b. ESPN NBA HTTP client with 1 rps rate limiting
+builder.Services.AddSingleton<EspnRateLimitedHandler>();
+builder.Services.AddHttpClient<IEspnNbaClient, EspnNbaHttpClient>(client =>
+    {
+        client.BaseAddress = new Uri("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/");
+        client.Timeout = TimeSpan.FromSeconds(10);
+    })
+    .AddHttpMessageHandler<EspnRateLimitedHandler>();
+
+// 1c. ESPN NBA ingestion
+builder.Services.AddScoped<IEspnNbaIngestionService, EspnNbaIngestionService>();
 
 // 2. Identity abstraction: Application uses IIdentityDbContext, Infrastructure provides IdentityDbContext
 builder.Services.AddScoped<IIdentityDbContext>(sp => sp.GetRequiredService<IdentityDbContext>());
@@ -65,7 +78,8 @@ builder.Services
     .AddGraphQLServer()
     .AddQueryType<Query>()
     .AddMutationType(d => d.Name("Mutation"))
-    .AddIdentityModule();
+    .AddIdentityModule()
+    .AddCompetitionsModule();
 
 // 6. Static NBA seed (Channel, League, Seasons)
 builder.Services.AddHostedService<NbaDataSeeder>();
