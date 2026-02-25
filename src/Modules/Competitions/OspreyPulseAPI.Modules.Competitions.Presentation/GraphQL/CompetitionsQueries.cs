@@ -84,8 +84,9 @@ public class CompetitionsQueries
 
     /// <summary>
     /// Single NBA competition by ESPN event id. Triggers ESPN summary/roster sync on demand.
+    /// Returns structured homeTeam/awayTeam with nested rosters (playerId, fullName, avatarUrl, jerseyNumber).
     /// </summary>
-    public async Task<Competition?> NbaCompetitionByEventId(
+    public async Task<NbaCompetitionDetail?> NbaCompetitionByEventId(
         string eventId,
         [Service] CompetitionsDbContext db,
         [Service] IEspnNbaIngestionService ingestion,
@@ -93,7 +94,7 @@ public class CompetitionsQueries
     {
         await ingestion.EnsureCompetitionDetailsAsync(eventId, cancellationToken);
 
-        return await db.Competitions
+        var competition = await db.Competitions
             .Include(c => c.Season)
             .ThenInclude(s => s.League)
             .ThenInclude(l => l.Channel)
@@ -104,6 +105,45 @@ public class CompetitionsQueries
             .ThenInclude(p => p.TeamAssignments)
             .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.ExternalId == eventId, cancellationToken);
+
+        return competition == null ? null : MapToNbaCompetitionDetail(competition);
+    }
+
+    private static NbaCompetitionDetail MapToNbaCompetitionDetail(Competition c)
+    {
+        return new NbaCompetitionDetail
+        {
+            ExternalId = c.ExternalId,
+            StartTime = c.StartTime,
+            HomeScore = c.HomeScore,
+            AwayScore = c.AwayScore,
+            HomeTeam = MapToNbaCompetitionTeam(c.HomeTeam, c.Rosters.Where(r => r.TeamId == c.HomeTeamId).ToList()),
+            AwayTeam = MapToNbaCompetitionTeam(c.AwayTeam, c.Rosters.Where(r => r.TeamId == c.AwayTeamId).ToList())
+        };
+    }
+
+    private static NbaCompetitionTeam MapToNbaCompetitionTeam(Team team, List<CompetitionRoster> rosters)
+    {
+        return new NbaCompetitionTeam
+        {
+            TeamId = team.Id,
+            Name = team.Name,
+            Nickname = team.Nickname,
+            Code = team.Code,
+            City = team.City,
+            LogoUrl = team.LogoUrl,
+            Rosters = rosters
+                .Where(r => r.Player != null)
+                .Select(r => new NbaRosterPlayer
+                {
+                    PlayerId = r.Player!.Id,
+                    FullName = r.Player.FullName,
+                    AvatarUrl = r.Player.AvatarUrl,
+                    JerseyNumber = r.Player.TeamAssignments
+                        .FirstOrDefault(a => a.TeamId == team.Id && a.IsActive)?.JerseyNumber
+                })
+                .ToList()
+        };
     }
 }
 
