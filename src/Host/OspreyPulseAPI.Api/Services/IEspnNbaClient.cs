@@ -18,5 +18,8 @@ public interface IEspnNbaClient
     Task<JsonDocument> GetTeamRosterAsync(
         string teamId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Fetches NBA news from ESPN (e.g. /news).</summary>
+    Task<JsonDocument> GetNewsAsync(CancellationToken cancellationToken = default);
 }
 

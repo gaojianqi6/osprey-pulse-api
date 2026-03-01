@@ -700,5 +700,115 @@ public class EspnNbaIngestionService : IEspnNbaIngestionService
             }
         }
     }
+
+    public async Task EnsureNbaNewsForTodayAsync(CancellationToken cancellationToken = default)
+    {
+        var channel = await _db.Channels
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Slug == "nba", cancellationToken);
+        if (channel == null)
+        {
+            _logger.LogWarning("NBA channel not found; skipping news ingestion.");
+            return;
+        }
+
+        var eastern = TimeZoneInfo.FindSystemTimeZoneById(
+            OperatingSystem.IsWindows() ? "Eastern Standard Time" : "America/New_York");
+        var nowNy = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, eastern);
+        var todayNy = DateOnly.FromDateTime(nowNy);
+        var todayStartNy = todayNy.ToDateTime(TimeOnly.MinValue);
+        var todayStartUtc = TimeZoneInfo.ConvertTimeToUtc(todayStartNy, eastern);
+        var tomorrowStartUtc = todayStartUtc.AddDays(1);
+
+        var hasNewsToday = await _db.Posts
+            .AnyAsync(
+                p => p.ChannelId == channel.Id
+                     && p.Type == PostType.News
+                     && p.DeletedAt == null
+                     && p.CreatedAt >= todayStartUtc
+                     && p.CreatedAt < tomorrowStartUtc,
+                cancellationToken);
+
+        if (hasNewsToday)
+        {
+            _logger.LogDebug("NBA news for today ({Today}) already present; skipping fetch.", todayNy);
+            return;
+        }
+
+        using var document = await _client.GetNewsAsync(cancellationToken);
+        var root = document.RootElement;
+
+        if (!root.TryGetProperty("articles", out var articlesEl) || articlesEl.ValueKind != JsonValueKind.Array)
+        {
+            _logger.LogWarning("ESPN news response missing or empty 'articles' array.");
+            return;
+        }
+
+        var count = 0;
+        const int maxArticles = 6;
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var article in articlesEl.EnumerateArray())
+        {
+            if (count >= maxArticles)
+                break;
+
+            var idEl = article.TryGetProperty("id", out var idProp) ? idProp : default;
+            var espnId = idEl.ValueKind == JsonValueKind.Number
+                ? idEl.GetInt64().ToString()
+                : idEl.GetString();
+            if (string.IsNullOrWhiteSpace(espnId))
+                continue;
+
+            var headline = article.TryGetProperty("headline", out var hEl) ? hEl.GetString() : null;
+            if (string.IsNullOrWhiteSpace(headline))
+                headline = "(No title)";
+
+            var description = article.TryGetProperty("description", out var dEl) ? dEl.GetString() : null;
+
+            string? previewImg = null;
+            if (article.TryGetProperty("images", out var imagesEl) && imagesEl.ValueKind == JsonValueKind.Array && imagesEl.GetArrayLength() > 0)
+            {
+                var first = imagesEl[0];
+                previewImg = first.TryGetProperty("url", out var urlEl) ? urlEl.GetString() : null;
+            }
+
+            var existing = await _db.Posts
+                .FirstOrDefaultAsync(
+                    p => p.ChannelId == channel.Id && p.ExternalId == espnId,
+                    cancellationToken);
+
+            var originJson = article.GetRawText();
+
+            if (existing != null)
+            {
+                existing.Title = headline;
+                existing.ShortDescription = description;
+                existing.PreviewImg = previewImg;
+                existing.OriginData = originJson;
+                existing.LastBumpedAt = now;
+            }
+            else
+            {
+                _db.Posts.Add(new Post
+                {
+                    ChannelId = channel.Id,
+                    UserId = null,
+                    ExternalId = espnId,
+                    Title = headline,
+                    ShortDescription = description,
+                    PreviewImg = previewImg,
+                    OriginData = originJson,
+                    Type = PostType.News,
+                    CreatedAt = now,
+                    LastBumpedAt = now
+                });
+                count++;
+            }
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("NBA news for today ({Today}): ingested {Count} articles.", todayNy, count);
+    }
 }
 

@@ -51,4 +51,33 @@ dotnet ef database update --context IdentityDbContext --startup-project src/Host
 dotnet ef database update --context CompetitionsDbContext --startup-project src/Host/OspreyPulseAPI.Api
 ```
 
+**4. Posts table (NBA news):** A migration `AddPostsTable` adds `competitions.posts` for user/news posts. After pulling, run the Competitions DB update above to apply it. NBA news is ingested from ESPN on startup (if today’s news is missing) and daily at **midnight New York time** via `NbaNewsIngestionHostedService`.
+
 **Once you do this, refresh your Supabase Studio (localhost:54323). You should see your new schemas and tables!** Let me know if you run into any errors during the `ef migrations` step.
+
+### Homepage GraphQL
+One query for the landing page (today’s NBA games + latest news):
+```graphql
+query Homepage {
+  homepage(postsLimit: 20) {
+    nbaTodayCompetitions {
+      externalId
+      startTime
+      homeTeam { id name nickname code city logoUrl }
+      awayTeam { id name nickname code city logoUrl }
+      homeScore
+      awayScore
+    }
+    nbaPosts {
+      id
+      title
+      shortDescription
+      previewImg
+      externalId
+      type
+      createdAt
+      lastBumpedAt
+    }
+  }
+}
+```

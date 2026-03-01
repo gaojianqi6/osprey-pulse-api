@@ -42,6 +42,9 @@ public class EspnNbaHttpClient : IEspnNbaClient
         return await GetJsonAsync(path, cancellationToken);
     }
 
+    public async Task<JsonDocument> GetNewsAsync(CancellationToken cancellationToken = default)
+        => await GetJsonAsync("news", cancellationToken);
+
     private async Task<JsonDocument> GetJsonAsync(
         string relativePath,
         CancellationToken cancellationToken)

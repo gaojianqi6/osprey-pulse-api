@@ -9,7 +9,8 @@ public static class CompetitionsModuleExtensions
     {
         return builder
             .AddTypeExtension<CompetitionsQueries>()
-            .AddTypeExtension<CompetitionRosterExtensions>();
+            .AddTypeExtension<CompetitionRosterExtensions>()
+            .AddType<PostTypeExtensions>();
     }
 }
 

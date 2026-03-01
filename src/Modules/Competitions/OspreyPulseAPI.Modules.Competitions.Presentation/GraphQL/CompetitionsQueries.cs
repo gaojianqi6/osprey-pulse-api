@@ -26,6 +26,47 @@ public class CompetitionsQueries
     }
 
     /// <summary>
+    /// Homepage: today's NBA competitions and latest NBA posts (news). One query for the landing page.
+    /// </summary>
+    public async Task<Homepage> Homepage(
+        [Service] CompetitionsDbContext db,
+        int postsLimit = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var tomorrow = today.AddDays(1);
+
+        // Run sequentially: DbContext is not thread-safe for concurrent operations.
+        var nbaTodayCompetitions = await db.Competitions
+            .Include(c => c.Season)
+            .ThenInclude(s => s.League)
+            .ThenInclude(l => l.Channel)
+            .Include(c => c.HomeTeam)
+            .Include(c => c.AwayTeam)
+            .Where(c =>
+                c.Season.League.Channel.Slug == "nba" &&
+                c.StartTime.HasValue &&
+                DateOnly.FromDateTime(c.StartTime.Value.UtcDateTime) >= today &&
+                DateOnly.FromDateTime(c.StartTime.Value.UtcDateTime) < tomorrow)
+            .OrderBy(c => c.StartTime)
+            .ToListAsync(cancellationToken);
+
+        var nbaPosts = await db.Posts
+            .AsNoTracking()
+            .Include(p => p.Channel)
+            .Where(p => p.Channel.Slug == "nba" && p.Type == PostType.News && p.DeletedAt == null)
+            .OrderByDescending(p => p.LastBumpedAt)
+            .Take(postsLimit)
+            .ToListAsync(cancellationToken);
+
+        return new Homepage
+        {
+            NbaTodayCompetitions = nbaTodayCompetitions,
+            NbaPosts = nbaPosts
+        };
+    }
+
+    /// <summary>
     /// Today's NBA competitions (by UTC date).
     /// </summary>
     public async Task<List<Competition>> NbaTodayCompetitions(
@@ -102,11 +143,11 @@ public class CompetitionsQueries
             .Include(c => c.AwayTeam)
             .Include(c => c.Rosters)
             .ThenInclude(r => r.Player)
-            .ThenInclude(p => p.TeamAssignments)
+            .ThenInclude(p => p!.TeamAssignments)
             .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.ExternalId == eventId, cancellationToken);
 
-        return competition == null ? null : MapToNbaCompetitionDetail(competition);
+        return competition is null ? null : MapToNbaCompetitionDetail(competition);
     }
 
     private static NbaCompetitionDetail MapToNbaCompetitionDetail(Competition c)

@@ -16,6 +16,7 @@ public class CompetitionsDbContext : DbContext
     public DbSet<PlayerTeamAssignment> PlayerTeamAssignments => Set<PlayerTeamAssignment>();
     public DbSet<Competition> Competitions => Set<Competition>();
     public DbSet<CompetitionRoster> CompetitionRosters => Set<CompetitionRoster>();
+    public DbSet<Post> Posts => Set<Post>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

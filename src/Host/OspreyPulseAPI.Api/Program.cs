@@ -18,7 +18,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddDbContext<CompetitionsDbContext>(options =>
-    options.UseNpgsql(connectionString));
+{
+    options.UseNpgsql(connectionString);
+    // Allow "database update" when snapshot matches model; suppress pending-model-changes as error
+    options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+});
 
 // 1b. ESPN NBA HTTP client with 1 rps rate limiting
 builder.Services.AddSingleton<EspnRateLimitedHandler>();
@@ -73,6 +77,18 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(AssemblyReference.Assembly);
 });
 
+// 4b. CORS (temporarily allow any origin for testing)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // 5. GraphQL (Hot Chocolate)
 builder.Services
     .AddGraphQLServer()
@@ -84,12 +100,16 @@ builder.Services
 // 6. Static NBA seed (Channel, League, Seasons)
 builder.Services.AddHostedService<NbaDataSeeder>();
 
+// 6b. NBA news: load on startup if missing, then daily at midnight NY
+builder.Services.AddHostedService<NbaNewsIngestionHostedService>();
+
 // Add services to the container.
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Pipeline: Auth before endpoints
+// Pipeline: CORS and Auth before endpoints
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

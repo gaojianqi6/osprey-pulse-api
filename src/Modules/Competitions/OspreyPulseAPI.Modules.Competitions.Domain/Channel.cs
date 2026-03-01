@@ -15,4 +15,5 @@ public class Channel
     public string? Description { get; set; }
 
     public ICollection<League> Leagues { get; set; } = new List<League>();
+    public ICollection<Post> Posts { get; set; } = new List<Post>();
 }
